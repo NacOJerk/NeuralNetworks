@@ -1,6 +1,10 @@
 import numpy as np
 
-#Some pretty shitty code warning
+DISPLAY_INTERVAL = 10000
+LEARNING_RATE = 13
+
+#Go ahead and try some logic gates on them, I recommand using 4 neurons in 1 hidden layer
+#http://bit.ly/2Hu19ux
 
 def sigmoid(x):
   return 1 / (1. + np.exp(-x))
@@ -20,11 +24,11 @@ if __name__ == "__main__":
         amount = input("Enter amount of neuron per layer (type stop to stop): ")
         if amount == "stop":
             weights.append(2 * np.matrix(np.random.rand(prevLayer, 1) - 1, dtype=np.float64))
-            bias.append(np.matrix(np.random.rand(1, 1), dtype=np.float64))
+            bias.append(2 * np.matrix(np.random.rand(1, 1) - 1, dtype=np.float64))
             break
         amount = int(amount)
         weights.append(2 * np.matrix(np.random.rand(prevLayer, amount) - 1, dtype=np.float64))
-        bias.append(np.matrix(np.random.rand(1, amount), dtype=np.float64))
+        bias.append(2 * np.matrix(np.random.rand(1, amount) - 1, dtype=np.float64))
         prevLayer = amount
     eWeights = []
     eBias = []
@@ -60,7 +64,7 @@ if __name__ == "__main__":
                     pass
                 aPrev = a
             cost = (a - io[i][1])**2
-            if generation % 10000 == 0:
+            if generation % DISPLAY_INTERVAL == 0:
                 #print("Weights: ")
                 #print(weights)
                 #print("Bias: ")
@@ -75,13 +79,14 @@ if __name__ == "__main__":
                 avgW[spot] += (zDer.T * netList[spot][0]).reshape(avgW[spot].shape)
                 avgB[spot] += zDer
                 costDer = (zDer * weights[spot].T)
-        avgW = np.divide(avgW, len(io))
+        for j in range(len(avgW)):
+            avgW[j] = np.divide(avgW[j], len(io))
         for j in range(len(avgB)):
             avgB[j] = np.divide(avgB[j], len(io))
         for j in range(len(avgW)):
-            weights[j] = weights[j] - avgW[j]
+            weights[j] -= avgW[j] * LEARNING_RATE
         for j in range(len(avgB)):
-            bias[j] = bias[j] - avgB[j]
+            bias[j] -= avgB[j] * LEARNING_RATE
         if test == len(io):
             break
         generation +=1
